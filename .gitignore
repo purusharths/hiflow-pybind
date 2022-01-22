@@ -19,6 +19,7 @@ build*
 */.vscode
 */.vscode/*
 examples/*
+doc/*
 
 # ignore doxygen files
 /doc/doxygen/html
