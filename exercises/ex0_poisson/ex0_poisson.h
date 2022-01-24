@@ -137,3 +137,78 @@ class LocalPoissonAssembler : private AssemblyAssistant<DIM, DataType> {
     return rhs_sol;
   }
 };
+
+
+struct ExactSol {
+  size_t nb_comp() const { return 1; }
+
+  size_t nb_func() const { return 1; }
+
+  size_t weight_size() const { return nb_func() * nb_comp(); }
+
+  size_t iv2ind(size_t j, size_t v) const { return v; }
+
+  // wrapper needed to make ExactSol compatible with FE interpolation
+  void evaluate(const mesh::Entity &cell, const Vec<DIM, DataType> &pt,
+                std::vector<DataType> &vals) const {
+    vals.clear();
+    vals.resize(1, 0.);
+    vals[0] = this->operator()(pt);
+  }
+
+  // evaluate analytical function at given point
+  DataType operator()(const Vec<DIM, DataType> &pt) const {
+    const DataType x = pt[0];
+    const DataType y = (DIM > 1) ? pt[1] : 0;
+    const DataType z = (DIM > 2) ? pt[2] : 0;
+    const DataType pi = M_PI;
+    DataType solution;
+
+    switch (DIM) {
+      case 2: {
+        solution = 10.0 * std::sin(2. * M * pi * x) * std::sin(2. * N * pi * y);
+        break;
+      }
+      case 3: {
+        solution = 10.0 * std::sin(2. * M * pi * x) *
+                   std::sin(2. * N * pi * y) * std::sin(2. * O * pi * z);
+        break;
+      }
+
+      default:
+        assert(0);
+    }
+    return solution;
+  }
+
+  // evaluate gradient of analytical function at given point
+  Vec<DIM, DataType> eval_grad(const Vec<DIM, DataType> &pt) const {
+    Vec<DIM, DataType> grad;
+    const DataType x = pt[0];
+    const DataType y = (DIM > 1) ? pt[1] : 0;
+    const DataType z = (DIM > 2) ? pt[2] : 0;
+    const DataType pi = M_PI;
+
+    switch (DIM) {
+      case 2: {
+        grad[0] = 20. * M * pi * std::cos(2. * M * pi * x) *
+                  std::sin(2. * N * pi * y);
+        grad[1] = 20. * N * pi * std::sin(2. * M * pi * x) *
+                  std::cos(2. * N * pi * y);
+        break;
+      }
+      case 3: {
+        grad[0] = 20. * M * pi * std::cos(2. * M * pi * x) *
+                  std::sin(2. * N * pi * y) * std::sin(2. * O * pi * z);
+        grad[1] = 20. * N * pi * std::sin(2. * M * pi * x) *
+                  std::cos(2. * N * pi * y) * std::sin(2. * O * pi * z);
+        grad[2] = 20. * O * pi * std::sin(2. * M * pi * x) *
+                  std::sin(2. * N * pi * y) * std::cos(2. * O * pi * z);
+        break;
+      }
+      default:
+        assert(0);
+    }
+    return grad;
+  }
+};

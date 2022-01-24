@@ -82,6 +82,7 @@ set(SUBDIRS_EXERCISES
   data
   ex0_poisson
   ex1_poisson
+  test_cmake
 )
 
 # Recurse through sub-directories and gather information for libhiflow

@@ -29,8 +29,9 @@ public:
                   const std::string &path_mesh)
       : path_mesh(path_mesh), comm_(MPI_COMM_WORLD), rank_(-1),
         num_partitions_(-1),
-        params_(param_filename, MASTER_RANK, MPI_COMM_WORLD), 
-        is_done_(false), refinement_level_(0){
+        params_(param_filename, MASTER_RANK, MPI_COMM_WORLD),
+        refinement_level_(0) { // is_done_(false),
+         
     MPI_Comm_rank(comm_, &rank_);
     MPI_Comm_size(comm_, &num_partitions_);
     
@@ -124,7 +125,7 @@ private:
   StandardGlobalAssembler< DataType, DIM > global_asm_;
   
   // bool is_done_; // Flag for stopping adaptive loop.
-  // int refinement_level_; // Current refinement level.
+  int refinement_level_; // Current refinement level.
   
 }; // end class PoissonTutorial
 
@@ -384,43 +385,43 @@ void PoissonTutorial::visualize() {
 
 
 // not used for now
-void PoissonTutorial::compute_error() 
-{
-  // prepare sol_ for post processing
-  sol_.Update();
+// void PoissonTutorial::compute_error() 
+// {
+//   // prepare sol_ for post processing
+//   sol_.Update();
 
-  L2_err_.clear();
-  H1_err_.clear();
+//   L2_err_.clear();
+//   H1_err_.clear();
 
-  // Compute square of the L2 error on each element, putting the
-  // values into L2_err_.
-  L2ErrorIntegrator< ExactSol > L2_int(sol_);
-  global_asm_.assemble_scalar(space_, L2_int, L2_err_);
+//   // Compute square of the L2 error on each element, putting the
+//   // values into L2_err_.
+//   L2ErrorIntegrator< ExactSol > L2_int(sol_);
+//   global_asm_.assemble_scalar(space_, L2_int, L2_err_);
 
-  // Create attribute with L2 error for output.
-  AttributePtr L2_err_attr(new DoubleAttribute(L2_err_));
-  mesh_->add_attribute("L2 error", DIM, L2_err_attr);
-  DataType total_L2_err = std::accumulate(L2_err_.begin(), L2_err_.end(), 0.);
-  DataType global_L2_err = 0.;
-  MPI_Reduce(&total_L2_err, &global_L2_err, 1, MPI_DOUBLE, MPI_SUM, MASTER_RANK, comm_);
-  PLOG_INFO(rank_, "error", "Local L2 error on partition " << rank_ << " = "
-                                                   << std::sqrt(total_L2_err));
+//   // Create attribute with L2 error for output.
+//   AttributePtr L2_err_attr(new DoubleAttribute(L2_err_));
+//   mesh_->add_attribute("L2 error", DIM, L2_err_attr);
+//   DataType total_L2_err = std::accumulate(L2_err_.begin(), L2_err_.end(), 0.);
+//   DataType global_L2_err = 0.;
+//   MPI_Reduce(&total_L2_err, &global_L2_err, 1, MPI_DOUBLE, MPI_SUM, MASTER_RANK, comm_);
+//   PLOG_INFO(rank_, "error", "Local L2 error on partition " << rank_ << " = "
+//                                                    << std::sqrt(total_L2_err));
 
-  // Compute square of the H1 error on each element, putting the
-  // values into H1_err_.
+//   // Compute square of the H1 error on each element, putting the
+//   // values into H1_err_.
 
-  H1ErrorIntegrator< ExactSol > H1_int(sol_);
-  global_asm_.assemble_scalar(space_, H1_int, H1_err_);
+//   H1ErrorIntegrator< ExactSol > H1_int(sol_);
+//   global_asm_.assemble_scalar(space_, H1_int, H1_err_);
 
-  // Create attribute with H1 error for output.
-  AttributePtr H1_err_attr(new DoubleAttribute(H1_err_));
-  mesh_->add_attribute("H1 error", DIM, H1_err_attr);
-  DataType total_H1_err = std::accumulate(H1_err_.begin(), H1_err_.end(), 0.);
-  DataType global_H1_err = 0.;
-  MPI_Reduce(&total_H1_err, &global_H1_err, 1, MPI_DOUBLE, MPI_SUM, MASTER_RANK, comm_);
-  PLOG_INFO(rank_, "error", "Local H1 error on partition " << rank_ << " = " << std::sqrt(total_H1_err));
+//   // Create attribute with H1 error for output.
+//   AttributePtr H1_err_attr(new DoubleAttribute(H1_err_));
+//   mesh_->add_attribute("H1 error", DIM, H1_err_attr);
+//   DataType total_H1_err = std::accumulate(H1_err_.begin(), H1_err_.end(), 0.);
+//   DataType global_H1_err = 0.;
+//   MPI_Reduce(&total_H1_err, &global_H1_err, 1, MPI_DOUBLE, MPI_SUM, MASTER_RANK, comm_);
+//   PLOG_INFO(rank_, "error", "Local H1 error on partition " << rank_ << " = " << std::sqrt(total_H1_err));
 
-  LOG_INFO("Global L2 error", std::sqrt(global_L2_err));
-  LOG_INFO("Global H1 error", std::sqrt(global_H1_err));
-}
+//   LOG_INFO("Global L2 error", std::sqrt(global_L2_err));
+//   LOG_INFO("Global H1 error", std::sqrt(global_H1_err));
+// }
 

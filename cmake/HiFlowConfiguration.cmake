@@ -150,6 +150,18 @@ if (WANT_ILUPP)
   endif (ILUPP_FOUND)
 endif (WANT_ILUPP)
 
+# PyBind11
+set(WITH_PB11 0)
+option(WANT_PB11 "Compile with PyBind11 for Python Bindings." )
+if (WANT_PB11)
+    find_package(PB11 REQUIRED)
+  if (PB11_FOUND)
+    set(WITH_PB11 1)
+    message ("found PB11 ${WITH_PB11}")
+  endif (PB11_FOUND)
+endif (WANT_PB11)
+
+
 # MUMPS (shared parallel version)
 set(WITH_MUMPS 0)
 option(WANT_MUMPS "Compile linear algebra module with MUMPS solver support.")
